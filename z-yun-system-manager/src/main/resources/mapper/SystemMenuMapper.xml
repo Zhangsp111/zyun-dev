@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zyun.system.repository.SystemMenuMapper">
+
+    <update id="updateFlagById">
+        update `zyun_menu`
+         set flag = #{flag}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteByIds" parameterType="list">
+        delete from `zyun_menu`
+        where id in
+        <foreach collection="ids" separator="," close=")" open="(" item="item">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="selectPermissionsByRoleId" parameterType="integer" resultType="java.lang.String">
+        select
+            a.menu_code
+        from `zyun_menu` a
+        where a.id in (
+            select
+                b.menu_id
+            from `zyun_role_menu` b
+            where b.role_id = #{roleId}
+        )
+    </select>
+
+    <resultMap id="getAllMenus" type="com.zyun.model.system.menu.ext.SystemMenuExt">
+        <id column="one_id" property="id"/>
+        <result column="one_menu_name" property="menuName"/>
+        <result column="one_flag" property="flag"/>
+        <result column="one_path" property="path"/>
+        <result column="one_module_id" property="moduleId"/>
+        <result column="one_parent_id" property="parentId"/>
+        <result column="one_menu_code" property="menuCode"/>
+        <result column="one_level" property="level"/>
+        <result column="one_icon" property="icon"/>
+        <collection property="children" ofType="com.zyun.model.system.menu.ext.SystemMenuExt">
+            <id column="two_id" property="id"/>
+            <result column="two_menu_name" property="menuName"/>
+            <result column="two_flag" property="flag"/>
+            <result column="two_path" property="path"/>
+            <result column="two_module_id" property="moduleId"/>
+            <result column="two_parent_id" property="parentId"/>
+            <result column="two_menu_code" property="menuCode"/>
+            <result column="two_level" property="level"/>
+            <result column="two_icon" property="icon"/>
+            <collection property="children" ofType="com.zyun.model.system.menu.ext.SystemMenuExt">
+                <id column="three_id" property="id"/>
+                <result column="three_menu_name" property="menuName"/>
+                <result column="three_flag" property="flag"/>
+                <result column="three_path" property="path"/>
+                <result column="three_module_id" property="moduleId"/>
+                <result column="three_parent_id" property="parentId"/>
+                <result column="three_menu_code" property="menuCode"/>
+                <result column="three_level" property="level"/>
+                <result column="three_icon" property="icon"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+
+    <select id="selectMenus" resultMap="getAllMenus" parameterType="string">
+        select
+            a.id as one_id,
+            a.menu_name as one_menu_name,
+            a.flag as one_flag,
+            a.path as one_path,
+            a.module_id as one_module_id,
+            a.parent_id as one_parent_id,
+            a.menu_code as one_menu_code,
+            a.level as one_level,
+            a.icon as one_icon,
+            b.id as two_id,
+            b.menu_name as two_menu_name,
+            b.flag as two_flag,
+            b.path as two_path,
+            b.module_id as two_module_id,
+            b.parent_id as two_parent_id,
+            b.menu_code as two_menu_code,
+            b.level as two_level,
+            b.icon as two_icon,
+            c.id as three_id,
+            c.menu_name as three_menu_name,
+            c.flag as three_flag,
+            c.path as three_path,
+            c.module_id as three_module_id,
+            c.parent_id as three_parent_id,
+            c.menu_code as three_menu_code,
+            c.level as three_level,
+            c.icon as three_icon
+        from `zyun_menu` a
+            left join `zyun_menu` b on a.id = b.parent_id and b.level = '2'
+            left join `zyun_menu` c on b.id = c.parent_id and c.level = '3'
+        where a.level = '1'
+        <if test="keyword != null and keyword != ''">
+            and a.menu_name like CONCAT('%',#{keyword},'%')
+        </if>
+
+    </select>
+
+    <resultMap id="getMenusByRoleIdAndModuleId" type="com.zyun.model.system.menu.ext.SystemMenuExt">
+        <id column="one_id" property="id"/>
+        <result column="one_menu_name" property="menuName"/>
+        <result column="one_path" property="path"/>
+        <result column="one_level" property="level"/>
+        <result column="one_icon" property="icon"/>
+        <result column="one_module_id" property="moduleId"/>
+        <collection property="children" ofType="com.zyun.model.system.menu.ext.SystemMenuExt">
+            <id column="two_id" property="id"/>
+            <result column="two_menu_name" property="menuName"/>
+            <result column="two_path" property="path"/>
+            <result column="two_level" property="level"/>
+            <result column="two_icon" property="icon"/>
+            <result column="two_module_id" property="moduleId"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectMenusByRoleIdAndModuleId" resultMap="getMenusByRoleIdAndModuleId">
+        select
+            a.id as one_id,
+            a.menu_name as one_menu_name,
+            a.path as one_path,
+            a.level as one_level,
+            a.icon as one_icon,
+            a.module_id as one_module_id,
+            b.id as two_id,
+            b.menu_name as two_menu_name,
+            b.path as two_path,
+            b.level as two_level,
+            b.icon as two_icon,
+            b.module_id as two_module_id
+        from `zyun_menu` a
+            left join `zyun_menu` b on a.id = b.parent_id and b.level = '2'
+        where a.level = '1'
+            <if test="moduleId != null and moduleId != ''">
+                and a.module_id = #{moduleId}
+            </if>
+            <if test="roleId != null and roleId != ''">
+                and a.id in (
+                    select menu_id from `zyun_role_menu` t where t.role_id = #{roleId}
+                )
+            </if>
+    </select>
+
+    <select id="selectLevel2" parameterType="integer" resultType="com.zyun.model.system.menu.SystemMenu">
+        select
+            path,
+            menu_name
+        from `zyun_menu`
+        where flag = '1'
+            and id in (
+                selct menu_id from zyun_role_menu where role_id = #{roleId}
+            )
+    </select>
+
+    <select id="selectCountByLevel1" resultType="java.lang.Long">
+        select
+            count(1)
+        from `zyun_menu`
+        where level = '1'
+    </select>
+
+    <select id="selectMenuById" parameterType="string"
+            resultType="com.zyun.model.system.menu.ext.SystemMenuExt">
+        select
+            a.id,
+            a.menu_name,
+            a.flag,
+            a.path,
+            a.icon,
+            a.module_id,
+            b.module_name as moduleName,
+            a.parent_id,
+            a.menu_code,
+            a.level,
+            c.menu_name as parentName
+        from `zyun_menu` a
+            left join `zyun_module` b on a.module_id = b.id
+            left join `zyun_menu` c on a.parent_id = c.id
+        where a.id = #{menuId}
+    </select>
+
+</mapper>

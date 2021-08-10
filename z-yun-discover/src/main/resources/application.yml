@@ -1,0 +1,19 @@
+server:
+  port: ${PORT:11001}
+spring:
+  application:
+    name: z-yun-discover #指定服务名
+
+eureka:
+  client:
+    registerWithEureka: true #服务注册，是否将自己注册到Eureka服务中(高可用环境为true)
+    fetchRegistry: true #服务发现，是否从Eureka中获取注册信息(高可用环境为true)
+    serviceUrl: #Eureka客户端与Eureka服务端的交互地址，高可用状态配置对方的地址，单机状态配置自己（如果 不配置则默认本机8761端口）
+      defaultZone: ${EUREKA_SERVER:http://eureka02:11002/eureka/}
+  server:
+    # Eureka Server有一种自我保护模式，当微服务不再向Eureka Server上报状态，Eureka Server会从服务列表将此 服务删除
+    # ，如果出现网络异常情况（微服务正常），此时Eureka server进入自保护模式，不再将微服务从服务列 表删除。
+    enable‐self‐preservation: false #是否开启自我保护模式(开发时不建议开)
+    eviction-interval-timer-in-ms: 15000 #服务注册表清理间隔（单位毫秒，默认是60*1000）
+  instance:
+    hostname: ${HOSTNAME:eureka01}
