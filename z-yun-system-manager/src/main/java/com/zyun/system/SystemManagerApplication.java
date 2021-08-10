@@ -27,6 +27,7 @@ public class SystemManagerApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(SystemManagerApplication.class);
+
     }
 
 }
