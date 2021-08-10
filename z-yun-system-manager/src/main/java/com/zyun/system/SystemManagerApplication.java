@@ -28,6 +28,7 @@ public class SystemManagerApplication {
     public static void main(String[] args) {
         System.out.println("zsp branch master update");
         System.out.println("zsp branch zsp update");
+        System.out.println("master update push");
         SpringApplication.run(SystemManagerApplication.class);
 
     }
