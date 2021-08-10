@@ -26,7 +26,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 public class SystemManagerApplication {
 
     public static void main(String[] args) {
-        System.out.println("zsp branch");
+        System.out.println("zsp branch zsp commit");
         SpringApplication.run(SystemManagerApplication.class);
 
     }
